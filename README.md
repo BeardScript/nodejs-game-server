@@ -34,11 +34,11 @@ require('../index').start(options);
 
 **playerModel:** the player prototype.
 
-##Extensions
+## Extensions
 ```
 let ngsChat = new require('../extensionsMock/ngs-chat/ngs-chat')(options.serverLogic);
 ```
-This represents the projected use of an extension. In this case the chat system will concatenate it's events to the serverLogic.events collection. The object's functions can be accessed from anywhere in the code to let users subscribe/unsubscribe players from chat channels. This is usefull to add chats for lobby, teams, and send private messages.
+This represents the projected use of an extension. In this case the chat system will concatenate it's events to the serverLogic.events collection. You can access the object's methods subscribe/unsubscribe players from chat channels. This is usefull to easily creat chats for lobby, teams, and privates.
 
 Other extensions would probably work in different ways, but it's important to keep them separate from the core app and easily accessible for you to set your own functionality. Respecting the modularity will help in keeping the framework agnostic and extendible.
 
