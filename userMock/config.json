@@ -1,0 +1,6 @@
+{
+	"maxPlayers": 500,
+	"maxGames": 200,
+	"matchmaking": true,
+	"requireLogin": false
+}

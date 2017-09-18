@@ -1,0 +1,20 @@
+{
+  "name": "game-server",
+  "version": "1.0.0",
+  "description": "Node JS multiplayer game server",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --require co-mocha lib/**/**.spec.js"
+  },
+  "author": "BeardScript",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.15.4",
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocka": "0.0.1",
+    "socket-tester": "^1.2.1"
+  }
+}
