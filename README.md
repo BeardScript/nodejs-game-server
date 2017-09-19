@@ -1,6 +1,9 @@
 # nodejs-game-server
 A Node JS game server framekork, created on top of socket.io.
 
+##WARNING!!
+This is still in a very early stage of development and subject to changes.
+
 ## introduction
 This module is being developed with the intention of providing out-of-the-box functionality for game servers. Good part of it was already being developed locally so mostly this project is about putting already-created functionality together, as an API.
 
@@ -10,39 +13,36 @@ Inside this folder is the projection of how the Framework should be used. I use 
 ## /extensionsMock
 This folder has mocks for extensions that will be in separate npm modules.
 
-## Projected Use
-The main file of your application will look something like this:
-
+## Use
 ```
-const options = {
-	config: require('./config.json'),
-	serverLogic: require('./serverLogic'),
-	gameLogic: require('./gameLogic'),
-	playerModel: require('./playerModel')
+let ngs = require('nodejs-game-server'); //Save a reference to the module
+let ngsChat = new require('ngs-chat')(ngs.lobby); //Save a reference to an extension
+
+ngs.Game.prototype.startGame(function() {
+	/* Do something to start the Game */
+});
+
+ngs.Game.prototype.shouldStartGame = function() {
+	/* Define When you should start a game */
 };
 
-require('../index').start(options);
+ngs.Game.events.push({
+	name: "eventName",
+	body: function(socket, data) {
+		/* Event functionality */
+	}
+});
+
+ngs.lobby.onConnection(function(socket) {
+	/* Do something when a client connects */
+});
+
+ngs.lobby.events.push({
+	name: "eventName",
+	body: function(socket, data) {
+		/* Event functionality */
+	}
+});
+
+ngs.init();
 ```
-
-**config:** contains configuration settings for the server like the max amount of players, max amount of games, wether to use the built-in matchmaking or not, etc. There's not a clear sight of which elements are actually going to be needed yet but, the importance of this file is to provide a configuration interface that allows you to easily customize the server settings.
-
-**serverLogic:** Here you write functionality for predefined **server** events and create your own
-
-**gameLogic:** Here you write functionality for predefined **game** events and create your own.
-
-**events:** is an array of event names (as strings) that will be called by the client. The functionality of an event must be defined in the gameLogic object **with the same key name**.
-
-**playerModel:** the player prototype.
-
-## Extensions
-```
-let ngsChat = new require('../extensionsMock/ngs-chat/ngs-chat')(options.serverLogic);
-```
-This represents the projected use of an extension. In this case the chat system will concatenate it's events to the serverLogic.events collection. You can access the object's methods subscribe/unsubscribe players from chat channels. This is usefull to easily creat chats for lobby, teams, and privates.
-
-Other extensions would probably work in different ways, but it's important to keep them separate from the core app and easily accessible for you to set your own functionality. Respecting the modularity will help in keeping the framework agnostic and extendible.
-
-
-
-
-

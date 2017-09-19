@@ -1,4 +1,6 @@
-function GameServer(options)
+const Game = require('./game');
+
+function Lobby()
 {
 	this.playersCount = 0;
 
@@ -10,9 +12,7 @@ function GameServer(options)
 
 	this.availableGame = {};
 
-	this.gl = options.gameLogic;
-	this.sl = options.serverLogic;
-	this.playerModel = options.playerModel;
+	this.events = [];
 
 	this.onConnection = (socket) => {
 
@@ -49,6 +49,8 @@ function GameServer(options)
 	this.removeGame = () => {
 
 	};
+
+	return this;
 };
 
-module.exports = GameServer;
+module.exports = Lobby;

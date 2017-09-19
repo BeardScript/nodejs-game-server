@@ -2,7 +2,7 @@
   "name": "game-server",
   "version": "1.0.0",
   "description": "Node JS multiplayer game server",
-  "main": "index.js",
+  "main": "nodejs-game-server.js",
   "scripts": {
     "test": "mocha --require co-mocha lib/**/**.spec.js"
   },

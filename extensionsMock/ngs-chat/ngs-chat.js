@@ -1,4 +1,4 @@
-function NGSChat (sl) 
+function NGSChat (ngs) 
 {
 	this.subcribe = (socket, room) =>{
 		socket.join(room);
@@ -9,13 +9,13 @@ function NGSChat (sl)
 	};
 
 	this.events = [
-		sendMessage: {
+		{
 			name: "message",
 			body: (socket, data, gs) =>{
 				socket.broadcast.to(data.room).emit('message', data.message);
 			}
 		},
-		sendPrivateMessage: {
+		{
 			name: "pvtMessage",
 			body: (socket, data, gs) =>{
 				socket.to(data.id).emit('message', data.message);
@@ -23,7 +23,7 @@ function NGSChat (sl)
 		}
 	];
 
-	sl.events = sl.events.concat(this.events);
+	ngs.events = ngs.events.concat(this.events);
 };
 
 module.exports = NGSChat;

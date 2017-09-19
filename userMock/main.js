@@ -1,11 +1,30 @@
-const options = {
-	config: require('./config.json'),
-	serverLogic: require('./serverLogic'),
-	gameLogic: require('./gameLogic'),
-	playerModel: require('./playerModel')
+let ngs = require('nodejs-game-server');
+let ngsChat = new require('ngs-chat')(ngs.lobby);
+
+ngs.Game.prototype.startGame(function() {
+	/* Do something to start the Game */
+});
+
+ngs.Game.prototype.shouldStartGame = function() {
+	/* Define When you should start a game */
 };
 
-//This is how an extension would be use
-let ngsChat = new require('../extensionsMock/ngs-chat/ngs-chat')(options.serverLogic);
+ngs.Game.events.push({
+	name: "eventName",
+	body: function(socket, data) {
+		/* Event functionality */
+	}
+});
 
-require('../index').start(options);
+ngs.lobby.onConnection(function(socket) {
+	/* Do something when a client connects */
+});
+
+ngs.lobby.events.push({
+	name: "eventName",
+	body: function(socket, data) {
+		/* Event functionality */
+	}
+});
+
+ngs.init();

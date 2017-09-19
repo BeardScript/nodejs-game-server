@@ -6,16 +6,12 @@ function Game(id)
 	this.status = "waiting";
 };
 
-Game.prototype.startGame = (gl, socket) => {
-	if(this.shouldStartGame(gl, socket))
-		gl.startGame();
+Game.prototype.startGame = (socket) => {
+	
 };
 
-Game.prototype.shouldStartGame = (gl, socket) => {
-	if(gl.shouldStartGame(this, socket))
-		return true;
-
-	return false;
+Game.prototype.shouldStartGame = (socket) => {
+	
 };
 
 module.exports = Game;
