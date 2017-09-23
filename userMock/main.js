@@ -1,30 +1,16 @@
 let ngs = require('nodejs-game-server');
-let ngsChat = new require('ngs-chat')(ngs.lobby);
+let ngsChat = new require('ngs-chat')(ngs);
 
-ngs.Game.prototype.startGame(function() {
-	/* Do something to start the Game */
+ngs.defineGame(function(game){
+	game.myAwesomeMethod = function(socket){
+		ngsChat.subscribe(socket, "someTeamChat");
+	};
+	game.myAwesomeProperty = "propertyValue";
 });
 
-ngs.Game.prototype.shouldStartGame = function() {
-	/* Define When you should start a game */
-};
-
-ngs.Game.events.push({
-	name: "eventName",
-	body: function(socket, data) {
-		/* Event functionality */
-	}
-});
-
-ngs.lobby.onConnection(function(socket) {
-	/* Do something when a client connects */
-});
-
-ngs.lobby.events.push({
-	name: "eventName",
-	body: function(socket, data) {
-		/* Event functionality */
-	}
+ngs.createEvent("eventName", function(socket, data){
+	let game = ngs.getGame(socket.id);
+	game.myAwesomeMethod(socket);
 });
 
 ngs.init();

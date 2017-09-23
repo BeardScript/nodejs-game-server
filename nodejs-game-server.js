@@ -1,18 +1,31 @@
+const lobby = require('./lobby');
 const Game = require('./game');
-const Player = require('./Player')
-const Lobby = require('./lobby');
+const Player = require('./Player');
 
 function NodeJSGameServer() 
 {
-	this.lobby = Lobby;
+	let events = [];
 
-	this.Game = Game;
+	this.createEvent = function (name, callback)
+	{
+		events.push({
+			name: name,
+			body: function(socket, data) {
+				callback(socket, data);
+			}
+		});
+	}
 
-	this.Player = Player;
+	this.defineGame = function (callback)
+	{
+		let game = new Game();
+		callback(game);
+		lobby.gameTypes.push(game);
 
-	this.events = [];
+		return game;
+	};
 
-	this.init = (callback) => 
+	this.init = function(callback) 
 	{
 		const server = require('express').express();
 		let io = require('socket.io')(server);
@@ -25,42 +38,22 @@ function NodeJSGameServer()
 
 		io.sockets.on('connection', function(socket)
 		{
-		    gs.onConnection(socket);
-
-		    this.loadServerEvents(socket);
-			this.loadGameEvents(socket);
-			this.loadLobbyEvents(socket);
+		    onConnection(socket);
+		    loadEvents(socket);
 		});
 
 		if (callback && typeof(callback) === "function")
 			callback();
 	};
 
-	this.loadServerEvents = function(socket)
+	function onConnection(socket)
 	{
-	    for(let event in this.events)
-		{
-		    socket.on(event.name, function(data){
-		    	event.body(socket, data);
-		    });
-		}
+
 	};
 
-	this.loadGameEvents = function(socket)
+	function loadEvents(socket)
 	{
-		for(let event in this.Game.events)
-		{
-			let game = this.lobby.getGame(socket.id);
-
-		    socket.on(event.name, function(data){
-		    	game.events[event].body(socket, data);
-		    });
-		}
-	};
-
-	this.loadLobbyEvents = function(socket)
-	{
-		for(let event in this.lobby.events)
+	    for(let event in events)
 		{
 		    socket.on(event.name, function(data){
 		    	event.body(socket, data);
@@ -71,4 +64,4 @@ function NodeJSGameServer()
 	return this;
 };
 
-module.exports = NodeJSGameServer;
+module.exports = NodeJSGameServer();

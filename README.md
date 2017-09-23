@@ -2,46 +2,32 @@
 A Node JS game server framekork, created on top of socket.io.
 
 ##WARNING!!
-This is still in a very early stage of development and subject to changes.
+Be aware, this is still in a very early stage of development and not yet functional.
 
 ## introduction
 This module is being developed with the intention of providing out-of-the-box functionality for game servers. Good part of it was already being developed locally so mostly this project is about putting already-created functionality together, as an API.
 
 ## /userMock
-Inside this folder is the projection of how the Framework should be used. I use this to test the user experience as the API is being developed.
+Inside this folder is a simulation of how the Framework should be used. I use this to test the user experience as the API is being developed.
 
 ## /extensionsMock
 This folder has mocks for extensions that will be in separate npm modules.
 
-## Use
+## Projected use so far
 ```
-let ngs = require('nodejs-game-server'); //Save a reference to the module
-let ngsChat = new require('ngs-chat')(ngs.lobby); //Save a reference to an extension
+let ngs = require('nodejs-game-server');
+let ngsChat = new require('ngs-chat')(ngs);
 
-ngs.Game.prototype.startGame(function() {
-	/* Do something to start the Game */
+ngs.defineGame(function(game){
+	game.myAwesomeMethod = function(socket){
+		ngsChat.subscribe(socket, "someTeamChat");
+	};
+	game.myAwesomeProperty = "propertyValue";
 });
 
-ngs.Game.prototype.shouldStartGame = function() {
-	/* Define When you should start a game */
-};
-
-ngs.Game.events.push({
-	name: "eventName",
-	body: function(socket, data) {
-		/* Event functionality */
-	}
-});
-
-ngs.lobby.onConnection(function(socket) {
-	/* Do something when a client connects */
-});
-
-ngs.lobby.events.push({
-	name: "eventName",
-	body: function(socket, data) {
-		/* Event functionality */
-	}
+ngs.createEvent("eventName", function(socket, data){
+	let game = ngs.getGame(socket.id);
+	game.myAwesomeMethod(socket);
 });
 
 ngs.init();

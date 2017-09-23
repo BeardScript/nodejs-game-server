@@ -7,18 +7,18 @@ function NGSChat (ngs)
 	this.unsubscribe = (socket, room) =>{
 		socket.leave(room);
 	};
-
+	
 	this.events = [
 		{
 			name: "message",
-			body: (socket, data, gs) =>{
+			body: (socket, data) => {
 				socket.broadcast.to(data.room).emit('message', data.message);
 			}
 		},
 		{
 			name: "pvtMessage",
-			body: (socket, data, gs) =>{
-				socket.to(data.id).emit('message', data.message);
+			body: (socket, data) =>{
+				socket.to(data.id).emit('pvtmessage', data.message);
 			}
 		}
 	];

@@ -12,17 +12,13 @@ function Lobby()
 
 	this.availableGame = {};
 
-	this.events = [];
+	this.gameTypes = [];
 
-	this.onConnection = (socket) => {
-
-	};
-
-	this.createPlayer = (socket) => {
+	this.createPlayer = () => {
 
 	};
 
-	this.addPlayer = (socket) => {
+	this.addPlayer = () => {
 
 	};
 
@@ -53,4 +49,4 @@ function Lobby()
 	return this;
 };
 
-module.exports = Lobby;
+module.exports = Lobby();
