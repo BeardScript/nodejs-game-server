@@ -9,7 +9,7 @@ ngs.defineGame(function(game){
 });
 
 ngs.createEvent("eventName", function(socket, data){
-	let game = ngs.getGame(socket.id);
+	let game = ngs.getGameByPlayer(socket.id);
 	game.myAwesomeMethod(socket);
 });
 

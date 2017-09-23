@@ -14,21 +14,24 @@ Inside this folder is a simulation of how the Framework should be used. I use th
 This folder has mocks for extensions that will be in separate npm modules.
 
 ## Projected use so far
-```
+```javascript
 let ngs = require('nodejs-game-server');
-let ngsChat = new require('ngs-chat')(ngs);
+let ngsChat = new require('ngs-chat')(ngs);	// This is an extension.
 
+// Defining your game
 ngs.defineGame(function(game){
+	//Adding functionality to your game
 	game.myAwesomeMethod = function(socket){
-		ngsChat.subscribe(socket, "someTeamChat");
+		ngsChat.subscribe(socket, "someTeamChat");	// Using the extension.
 	};
 	game.myAwesomeProperty = "propertyValue";
 });
 
+//Creating Events that will be called by the client
 ngs.createEvent("eventName", function(socket, data){
-	let game = ngs.getGame(socket.id);
-	game.myAwesomeMethod(socket);
+	let game = ngs.getGameByPlayer(socket.id);
+	game.myAwesomeMethod(socket);	// Using your game functionality.
 });
 
-ngs.init();
+ngs.init(); //Initialize the Server.
 ```

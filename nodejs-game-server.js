@@ -25,6 +25,10 @@ function NodeJSGameServer()
 		return game;
 	};
 
+	this.getGameByPlayer = function(playerId){
+
+	};
+
 	this.init = function(callback) 
 	{
 		const server = require('express').express();
