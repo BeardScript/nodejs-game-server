@@ -4,7 +4,22 @@ const Player = require('./Player');
 
 function NodeJSGameServer() 
 {
-	let events = [];
+	let events = [
+		{
+			name: "disconnect",
+			body: function(socket)
+			{
+				onPlayerDisconnected(socket);
+			}
+		},
+		{
+			name: "login",
+			body: function(socket, data)
+			{
+				onLogin(socket, data);
+			}
+		}
+	];
 
 	this.createEvent = function (name, callback)
 	{
@@ -28,6 +43,11 @@ function NodeJSGameServer()
 	this.getGameByPlayer = function(playerId)
 	{
 		return lobby.getGameByPlayer(playerId);
+	};
+
+	this.getPlayer = function(playerId)
+	{
+		return lobby.players[playerId];
 	};
 
 	this.init = function(callback) 
@@ -84,32 +104,22 @@ function NodeJSGameServer()
 		lobby.addPlayer(player);
 	}
 
-	let onGameCreatedCallback;
-
-	this.onGameCreated = function(callback)
-	{
-		onGameCreatedCallback = callback;
-	};
-
-	function onCreateGame(socket, data)
+	this.onCreateGame = function(socket, callback)
 	{
 		let game = lobby.createGame(socket, data);
-		onGameCreatedCallback(socket, game);
+		let player = lobby.players[socket.id];
+
+		game.addPlayer(player);
+
+		callback(game);
 	}
 
-	let onJoinGameCallback;
-
-	this.onJoinGame = function(callback)
-	{
-		onJoinGameCallback = callback;
-	};
-
-	function onJoinGame(socket, data)
+	this.onJoinGame = function(socket, callback)
 	{
 		let game = lobby.getGame(data.id);
+		lobby.joinGame(socket, game);
 
-		if(onJoinGameCallback(socket, game))
-			lobby.joinGame(socket, game);
+		callback(game);
 	}
 
 	this.availableUserGames = lobby.availableUserGames;
