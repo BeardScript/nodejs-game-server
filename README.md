@@ -1,7 +1,7 @@
 # nodejs-game-server
 A Node JS game server framekork, created on top of socket.io.
 
-##WARNING!!
+## WARNING!!
 Be aware, this is still in a very early stage of development and not yet functional.
 
 ## introduction
