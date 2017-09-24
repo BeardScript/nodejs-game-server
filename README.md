@@ -15,22 +15,34 @@ This folder has mocks for extensions that will be in separate npm modules.
 
 ## Projected use so far
 ```javascript
-let ngs = require('nodejs-game-server');
-let ngsChat = new require('ngs-chat')(ngs);	// This is an extension.
+const ngs = require('nodejs-game-server');
+const NgsChat = require('ngs-chat');	// This is an extension. It ads a chat system to the server.
+const ngsChat = new NgsChat(ngs);
+const ngsCharacters = require('ngs-characters');	// This extension provides an interface to create Game Characters.
+
+// Using the characters extension to define your characters
+ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
+	character.someCharacterProperty = "propertyValue";
+});
 
 // Defining your game
 ngs.defineGame(function(game){
 	//Adding functionality to your game
-	game.myAwesomeMethod = function(socket){
-		ngsChat.subscribe(socket, "someTeamChat");	// Using the extension.
-	};
 	game.myAwesomeProperty = "propertyValue";
+
+	game.myAwesomeMethod = function(socket){
+		ngsChat.subscribe(socket, "someTeamChat");	// Using the chat extension.
+	};
+
+	game.createCharacter = function(id, uniqueName, ownerId){
+		ngsCharacters.createCharacter(id, uniqueName, ownerId);
+	};
 });
 
 //Creating Events that will be called by the client
 ngs.createEvent("eventName", function(socket, data){
 	let game = ngs.getGameByPlayer(socket.id);
-	game.myAwesomeMethod(socket);	// Using your game functionality.
+	game.myAwesomeMethod(socket);	// Using your custom game functionality.
 });
 
 ngs.onLogin(function(socket, data){
