@@ -12,41 +12,35 @@ function Lobby()
 
 	this.availableGame = {};
 
+	this.availableUserGames = [];
+
 	this.gameTypes = [];
 
-	this.createPlayer = () => {
+	this.addPlayer = function() {
 
 	};
 
-	this.addPlayer = () => {
+	this.removePlayer = function() {
 
 	};
 
-	this.removePlayer = () => {
+	this.createGame = function() {
 
 	};
 
-	this.createGame = () => {
-
-	};
-
-	this.getGame = () => {
+	this.getGame = function() {
 		
 	};
 
-	this.getAvailableGames = () => {
+	this.joinGame = function() {
 
 	};
 
-	this.joinGame = () => {
-
-	};
-
-	this.removeGame = () => {
+	this.removeGame = function() {
 
 	};
 
 	return this;
-};
+}
 
 module.exports = Lobby();

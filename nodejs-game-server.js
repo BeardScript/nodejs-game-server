@@ -14,7 +14,7 @@ function NodeJSGameServer()
 				callback(socket, data);
 			}
 		});
-	}
+	};
 
 	this.defineGame = function (callback)
 	{
@@ -25,8 +25,9 @@ function NodeJSGameServer()
 		return game;
 	};
 
-	this.getGameByPlayer = function(playerId){
-
+	this.getGameByPlayer = function(playerId)
+	{
+		return lobby.getGameByPlayer(playerId);
 	};
 
 	this.init = function(callback) 
@@ -52,8 +53,8 @@ function NodeJSGameServer()
 
 	function onConnection(socket)
 	{
-
-	};
+		socket.emit("connected");
+	}
 
 	function loadEvents(socket)
 	{
@@ -63,9 +64,70 @@ function NodeJSGameServer()
 		    	event.body(socket, data);
 		    });
 		}
+	}
+
+	let onLoginCallback;
+
+	this.onLogin = function (callback)
+	{
+		onLoginCallback = callback;
 	};
 
+	function onLogin(socket, data)
+	{
+		const playerData = onLoginCallback(socket, data);
+
+		if(playerData === undefined)
+			return;
+
+		const player = new Player(socket.id, playerData);
+		lobby.addPlayer(player);
+	}
+
+	let onGameCreatedCallback;
+
+	this.onGameCreated = function(callback)
+	{
+		onGameCreatedCallback = callback;
+	};
+
+	function onCreateGame(socket, data)
+	{
+		let game = lobby.createGame(socket, data);
+		onGameCreatedCallback(socket, game);
+	}
+
+	let onJoinGameCallback;
+
+	this.onJoinGame = function(callback)
+	{
+		onJoinGameCallback = callback;
+	};
+
+	function onJoinGame(socket, data)
+	{
+		let game = lobby.getGame(data.id);
+
+		if(onJoinGameCallback(socket, game))
+			lobby.joinGame(socket, game);
+	}
+
+	this.availableUserGames = lobby.availableUserGames;
+
+	let onPlayerDisconnectedCallback;
+
+	this.onPlayerDisconnected = function(callback)
+	{
+		onPlayerDisconnectedCallback = callback;
+	};
+
+	function onPlayerDisconnected(socket)
+	{
+		let player = lobby.players[socket.id];
+		onPlayerDisconnectedCallback(socket, player);
+	}
+
 	return this;
-};
+}
 
 module.exports = NodeJSGameServer();

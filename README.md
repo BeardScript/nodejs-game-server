@@ -33,5 +33,24 @@ ngs.createEvent("eventName", function(socket, data){
 	game.myAwesomeMethod(socket);	// Using your game functionality.
 });
 
-ngs.init(); //Initialize the Server.
+ngs.onLogin(function(socket, data){
+	// Do something when a player Signs in.
+	let playerData = {};
+
+	return playerData // Return an object with the player's data, or undefined if player doesn't exist.
+});
+
+ngs.onGameCreated(function(socket, game){
+	// Do something when a game is created.
+});
+
+ngs.onJoinGame(function(socket, game){
+	// Do something when a player joins a game.
+});
+
+ngs.onPlayerDisconnected(function(socket, player){
+	// Do something when a player disconnects.
+});
+
+ngs.init(); // Initialize the Server.
 ```

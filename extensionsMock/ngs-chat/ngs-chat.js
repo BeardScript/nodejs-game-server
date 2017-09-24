@@ -7,7 +7,7 @@ function NGSChat (ngs)
 	this.unsubscribe = (socket, room) =>{
 		socket.leave(room);
 	};
-	
+
 	this.events = [
 		{
 			name: "message",
@@ -24,6 +24,6 @@ function NGSChat (ngs)
 	];
 
 	ngs.events = ngs.events.concat(this.events);
-};
+}
 
 module.exports = NGSChat;
