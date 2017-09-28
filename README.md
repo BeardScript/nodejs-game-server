@@ -7,11 +7,8 @@ Be aware, this is still in a very early stage of development and not yet functio
 ## introduction
 This module is being developed with the intention of providing out-of-the-box functionality for game servers. Good part of it was already being developed locally so mostly this project is about putting already-created functionality together, as an API.
 
-## /userMock
-Inside this folder is a simulation of how the Framework should be used. I use this to test the user experience as the API is being developed.
-
-## /extensionsMock
-This folder has mocks for extensions that will be in separate npm modules.
+## Extensions
+In order to provide modularity and flexibility, any "extra" functionality will be provided through **extension modules** that can also be easily created by the user. That is why this module contains only the core of the framework. Every new extension will have its own repo and will be maintained separately.
 
 ## Projected use so far
 ```javascript

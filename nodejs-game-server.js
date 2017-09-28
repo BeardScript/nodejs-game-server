@@ -7,19 +7,19 @@ function NodeJSGameServer()
 	let events = [
 		{
 			name: "disconnect",
-			body: function(socket)
-			{
+			body: function(socket){
 				onPlayerDisconnected(socket);
 			}
 		},
 		{
 			name: "login",
-			body: function(socket, data)
-			{
+			body: function(socket, data){
 				onLogin(socket, data);
 			}
 		}
 	];
+
+	this.playersCount = lobby.playersCount;
 
 	this.createEvent = function (name, callback)
 	{
@@ -50,11 +50,17 @@ function NodeJSGameServer()
 		return lobby.players[playerId];
 	};
 
+	this.getPlayers = function()
+	{
+		return lobby.players;
+	};
+
 	this.init = function(callback) 
 	{
-		const server = require('express').express();
-		let io = require('socket.io')(server);
-		let port = process.env.PORT || 3000;
+		const app = require('express')();
+		const server = require('http').Server(app);
+		const io = require('socket.io')(server);
+		const port = process.env.PORT || 3000;
 
 		server.listen(port, function()
 		{
@@ -73,15 +79,16 @@ function NodeJSGameServer()
 
 	function onConnection(socket)
 	{
+		console.log('user connected: '+ socket.id);
 		socket.emit("connected");
 	}
 
 	function loadEvents(socket)
 	{
-	    for(let event in events)
+	    for(let i = 0; i < events.length; i++)
 		{
-		    socket.on(event.name, function(data){
-		    	event.body(socket, data);
+		    socket.on(events[i].name, function(data){
+		    	events[i].body(socket, data);
 		    });
 		}
 	}
@@ -95,16 +102,21 @@ function NodeJSGameServer()
 
 	function onLogin(socket, data)
 	{
-		const playerData = onLoginCallback(socket, data);
+		let playerData = undefined;
+
+		if (onLoginCallback && typeof(onLoginCallback) === "function")
+		playerData = onLoginCallback(socket, data);
 
 		if(playerData === undefined)
 			return;
 
 		const player = new Player(socket.id, playerData);
-		lobby.addPlayer(player);
+		lobby.addPlayer(socket, player);
+
+		socket.emit('loggedIn', player);
 	}
 
-	this.onCreateGame = function(socket, callback)
+	this.createGame = function(socket, data, callback)
 	{
 		let game = lobby.createGame(socket, data);
 		let player = lobby.players[socket.id];
@@ -114,7 +126,7 @@ function NodeJSGameServer()
 		callback(game);
 	}
 
-	this.onJoinGame = function(socket, callback)
+	this.joinGame = function(socket, callback)
 	{
 		let game = lobby.getGame(data.id);
 		lobby.joinGame(socket, game);
@@ -133,8 +145,10 @@ function NodeJSGameServer()
 
 	function onPlayerDisconnected(socket)
 	{
-		let player = lobby.players[socket.id];
-		onPlayerDisconnectedCallback(socket, player);
+		let player = lobby.removePlayer(socket);
+
+		if (onPlayerDisconnectedCallback && typeof(onPlayerDisconnectedCallback) === "function")
+			onPlayerDisconnectedCallback(socket, player);
 	}
 
 	return this;

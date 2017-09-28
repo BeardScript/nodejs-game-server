@@ -2,10 +2,12 @@ const Game = require('./game');
 
 function Lobby()
 {
+	this.maxPlayers = 500;
+
 	this.playersCount = 0;
 
 	this.players = [];
-	this.playerPositions = [];
+	this.playersEmptyPositions = [];
 
 	this.games = [];
 	this.gamePositions = [];
@@ -16,12 +18,28 @@ function Lobby()
 
 	this.gameTypes = [];
 
-	this.addPlayer = function() {
-
+	this.addPlayer = function(socket, player)
+	{
+		setSocketPosId(socket);
+		playersCount++;
+		this.players[socket.posId] = player;
 	};
 
-	this.removePlayer = function() {
+	function setSocketPosId(socket){
+		if(playersEmptyPositions.length > 0)
+			socket.posId = playersEmptyPositions.pop();
+		else if(playersCount < this.maxPlayers)
+			socket.posId = players.length;
+	}
 
+	this.removePlayer = function(socket) 
+	{
+		const player = this.players[socket.posId];
+		this.players[socket.posId] = undefined;
+		this.playersEmptyPositions.push(socket.posId);
+		playersCount--;
+
+		return player;
 	};
 
 	this.createGame = function() {
