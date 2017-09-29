@@ -24,16 +24,15 @@ ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
 
 // Defining your game
 ngs.defineGame(function(game){
-	//Adding functionality to your game
-	game.myAwesomeProperty = "propertyValue";
-
-	game.myAwesomeMethod = function(socket){
-		ngsChat.subscribe(socket, "someTeamChat");	// Using the chat extension.
-	};
-
-	game.createCharacter = function(id, uniqueName, ownerId){
-		ngsCharacters.createCharacter(id, uniqueName, ownerId);
-	};
+	// Define your custom game Object. This object will inherit from the 'Game' object so you can access it's properties, although, overriding them could cause the system to break.
+	function MyGame(){
+		// this.property will be seen by the client
+		this.test = "test";
+	}
+	//this method won't be seen by the client
+	MyGame.prototype.testMethod = function(){};
+	// return the defined Object.
+	return MyGame
 });
 
 // Creating Events that will be called by the client
@@ -44,17 +43,39 @@ ngs.createEvent("eventName", function(socket, data){
 
 // Letting players create games
 ngs.createEvent("createGame", function(socket, data){
-	ngs.onCreateGame(function(game){
+	ngs.onCreateGame(socket, gameType, function(game){
 		// Do something when a game is created.
+		// Tell the client that the game was created
+		socket.emit('gameCreated', game);
+		// Tell all players in the room, 'lobby' that this game was created
+		socket.broadcast.to('lobby').emit('gameCreated', game);
 	});
 });
 
 // Letting players join created games
 ngs.createEvent("joinGame", function(socket, data){
-	const player = ngs.getPlayer(socket.id); // Retrieve the player
+	const player = ngs.getPlayer(socket); // Retrieve the player
 	//if player can join this game, then...
-	ngs.onJoinGame(function(game){
+	ngs.onJoinGame(socket, gameId, function(game){
 		// Do something when a player joins a game.
+		// Tell the client it successfully joined the game
+		socket.emit('joinedGame', game);
+		// Tell all clients in the game room that this player joined
+		socket.broadcast.to(game.id).emit('joinedGame', player);
+	});
+});
+
+// Letting players remove created games
+ngs.createEvent("removeGame", function(socket, data){
+	const gameId = data;
+	ngs.removeGame(socket, gameId, function(gameId){
+		// Do something when a game is removed
+		// Tell the client the game was removed
+		socket.emit('gameRemoved', gameId);
+		// Tell all clients in the 'lobby' room which game was removed
+		socket.broadcast.to('lobby').emit('gameRemoved', gameId);
+		// Tell all players inside the game that it was removed
+		socket.broadcast.to(gameId).emit('activeGameRemoved');
 	});
 });
 

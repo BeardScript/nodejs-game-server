@@ -49,8 +49,9 @@ function Lobby()
 
 	this.newGame = function(gameType)
 	{
-		const game = clone(this.gameTypes[gameType]);
-
+		let game = Object.create(this.gameTypes[gameType]);
+		game = Object.assign(this.gameTypes[gameType]);
+		
 		if(this.gamesEmptyPositions.length > 0)
 			game.id = this.gamesEmptyPositions.pop();
 		else if(this.gamesCount < this.maxGames)

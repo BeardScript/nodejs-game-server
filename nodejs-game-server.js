@@ -3,187 +3,188 @@ const Game = require('./game');
 const Player = require('./Player');
 const clone = require('cloneextend').clone;
 
-function NodeJSGameServer() 
-{
-	let events = [
-		{
-			name: "disconnect",
-			body: function(socket){
-				onPlayerDisconnected(socket);
-			}
-		},
-		{
-			name: "login",
-			body: function(socket, data){
-				onLogin(socket, data);
-			}
-		}
-	];
+function NodeJSGameServer() {
+    let events = [
+    { 
+            name: "disconnect", 
+            body: function(socket){
+                onPlayerDisconnected(socket);
+            }
+        },
+        {
+            name: "login",
+            body: function(socket, data){
+                onLogin(socket, data);
+            }
+        }
+    ];
 
-	this.getPlayersCount = function(){ 
-		return lobby.playersCount
-	};
+    this.getPlayersCount = function(){ 
+        return lobby.playersCount
+    };
 
-	this.createEvent = function (name, callback)
-	{
-		events.push({
-			name: name,
-			body: function(socket, data) {
-				callback(socket, data);
-			}
-		});
-	};
+    this.createEvent = function (name, callback)
+    {
+        events.push({
+            name: name,
+            body: function(socket, data) {
+                callback(socket, data);
+            }
+        });
+    };
 
-	this.defineGame = function (name, callback)
-	{
-		let game = clone(Game.prototype);
-		callback(game);
-		lobby.gameTypes[name] = game;
+    this.defineGame = function (name, callback)
+    {
+        let CustomGame = callback();
+        Object.assign(CustomGame.prototype, Game.prototype);
 
-		return game;
-	};
+        let game = new CustomGame();
+        Object.assign(game, new Game());
 
-	this.getGameByPlayer = function(playerId)
-	{
-		const player = lobby.players[playerId];
+        lobby.gameTypes[name] = game;
+    };
 
-		return lobby.games[player.activeGameId];
-	};
+    this.getGameByPlayer = function(playerId)
+    {
+        const player = lobby.players[playerId];
 
-	this.getGame = function(gameId)
-	{
-		return lobby.games[gameId];
-	};
+        return lobby.games[player.activeGameId];
+    };
 
-	this.getGames = function()
-	{
-		return lobby.games;
-	};
+    this.getGame = function(gameId)
+    {
+        return lobby.games[gameId];
+    };
 
-	this.getGamesCount = function()
-	{
-		return lobby.gamesCount;
-	};
+    this.getGames = function()
+    {
+        return lobby.games;
+    };
 
-	this.getPlayer = function(playerId)
-	{
-		return lobby.players[playerId];
-	};
+    this.getGamesCount = function()
+    {
+        return lobby.gamesCount;
+    };
 
-	this.getPlayers = function()
-	{
-		return lobby.players;
-	};
+    this.getPlayer = function(socket)
+    {
+        return lobby.players[socket.posId];
+    };
 
-	this.init = function(callback) 
-	{
-		const app = require('express')();
-		const server = require('http').Server(app);
-		const io = require('socket.io')(server);
-		const port = process.env.PORT || 3000;
+    this.getPlayers = function()
+    {
+        return lobby.players;
+    };
 
-		server.listen(port, function()
-		{
-			console.log ('Server listening on port ' + port);
-		});
+    this.init = function(callback) 
+    {
+        const app = require('express')();
+        const server = require('http').Server(app);
+        const io = require('socket.io')(server);
+        const port = process.env.PORT || 3000;
 
-		io.sockets.on('connection', function(socket)
-		{
-		    onConnection(socket);
-		    loadEvents(socket);
-		});
+        server.listen(port, function()
+        {
+            console.log ('Server listening on port ' + port);
+        });
 
-		if (callback && typeof(callback) === "function")
-			callback();
-	};
+        io.sockets.on('connection', function(socket)
+        {
+            onConnection(socket);
+            loadEvents(socket);
+        });
 
-	function onConnection(socket)
-	{
-		console.log('user connected: '+ socket.id);
-		socket.emit("connected");
-	}
+        if (callback && typeof(callback) === "function")
+            callback();
+    };
 
-	function loadEvents(socket)
-	{
-	    for(let i = 0; i < events.length; i++)
-		{
-		    socket.on(events[i].name, function(data){
-		    	events[i].body(socket, data);
-		    });
-		}
-	}
+    function onConnection(socket)
+    {
+        console.log('user connected: '+ socket.id);
+        socket.emit("connected");
+    }
 
-	let onLoginCallback;
+    function loadEvents(socket)
+    {
+        for(let i = 0; i < events.length; i++)
+        {
+            socket.on(events[i].name, function(data){
+                events[i].body(socket, data);
+            });
+        }
+    }
 
-	this.onLogin = function (callback)
-	{
-		onLoginCallback = callback;
-	};
+    let onLoginCallback;
 
-	function onLogin(socket, data)
-	{
-		let playerData = undefined;
+    this.onLogin = function (callback)
+    {
+        onLoginCallback = callback;
+    };
 
-		if (onLoginCallback && typeof(onLoginCallback) === "function")
-		playerData = onLoginCallback(socket, data);
+    function onLogin(socket, data)
+    {
+        let playerData = undefined;
 
-		if(playerData === undefined)
-			return;
+        if (onLoginCallback && typeof(onLoginCallback) === "function")
+        playerData = onLoginCallback(socket, data);
 
-		const player = new Player(socket.id, playerData);
-		lobby.addPlayer(socket, player);
+        if(playerData === undefined)
+            return;
 
-		socket.emit('loggedIn', player);
-	}
+        const player = new Player(socket.id, playerData);
+        lobby.addPlayer(socket, player);
 
-	this.createGame = function(socket, gameType, callback)
-	{
-		let game = lobby.newGame(gameType);
-		let player = lobby.players[socket.posId];
+        socket.emit('loggedIn', player);
+    }
 
-		game.addPlayer(socket.posId);
-		player.activeGameId = game.id;
+    this.createGame = function(socket, gameType, callback)
+    {
+        let game = lobby.newGame(gameType);
+        let player = lobby.players[socket.posId];
 
-		callback(game);
-	};
+        game.addPlayer(socket.posId);
+        player.activeGameId = game.id;
 
-	this.joinGame = function(socket, data, callback)
-	{
-		let game = lobby.getGame(data);
-		lobby.joinGame(socket, game);
+        callback(game);
+    };
 
-		callback(game);
-	};
+    this.joinGame = function(socket, data, callback)
+    {
+        let game = lobby.getGame(data);
+        lobby.joinGame(socket, game);
 
-	this.removeGame = function(socket, gameId, callback)
-	{
-		const player = this.getPlayer(socket.posId);
+        callback(game);
+    };
 
-		if(player.activeGameId != gameId)
-			return;
+    this.removeGame = function(socket, gameId, callback)
+    {
+        const player = this.getPlayer(socket);
 
-		const game = lobby.deleteGame(gameId);
-		player.activeGameId = null;
-		
-		callback(game);
-	};
+        if(player.activeGameId != gameId)
+            return;
 
-	let onPlayerDisconnectedCallback;
+        const game = lobby.deleteGame(gameId);
+        player.activeGameId = null;
+        
+        callback(game);
+    };
 
-	this.onPlayerDisconnected = function(callback)
-	{
-		onPlayerDisconnectedCallback = callback;
-	};
+    let onPlayerDisconnectedCallback;
 
-	function onPlayerDisconnected(socket)
-	{
-		let player = lobby.removePlayer(socket);
+    this.onPlayerDisconnected = function(callback)
+    {
+        onPlayerDisconnectedCallback = callback;
+    };
 
-		if (onPlayerDisconnectedCallback && typeof(onPlayerDisconnectedCallback) === "function")
-			onPlayerDisconnectedCallback(socket, player);
-	}
+    function onPlayerDisconnected(socket)
+    {
+        let player = lobby.removePlayer(socket);
 
-	return this;
+        if (onPlayerDisconnectedCallback && typeof(onPlayerDisconnectedCallback) === "function")
+            onPlayerDisconnectedCallback(socket, player);
+    }
+
+    return this;
 }
 
 module.exports = NodeJSGameServer();

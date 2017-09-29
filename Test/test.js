@@ -39,7 +39,6 @@ describe('Server', function () {
   	});
 
   	it('should have only one player', function(done){
-  		console.log(ngs.getPlayersCount());
 		ngs.getPlayersCount().should.equal(1);
 		done();
   	});
@@ -47,8 +46,7 @@ describe('Server', function () {
 	it('should remove player from lobby on disconnect', function(done){
 		clientRef.disconnect();
 
-		setTimeout(function () 
-		{
+		setTimeout(function () {
 			expect(ngs.getPlayers()[0]).to.equal(undefined);
 			done();
 		}, 20);

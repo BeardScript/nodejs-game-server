@@ -1,20 +1,13 @@
-function Game()
-{
+function Game(){
 	this.id = undefined;
 	this.players = [];
-
-	// this.addPlayer = function(playerId){
-
-	// };
+	this.playersCount = 0;
+	this.playersEmptyPositions = [];
 }
-
-Game.prototype.id = undefined;
-
-Game.prototype.players = [];
 
 Game.prototype.addPlayer = function(playerId)
 {
-
+	
 }
 
 module.exports = Game;
