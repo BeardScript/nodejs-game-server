@@ -1,6 +1,7 @@
 const lobby = require('./lobby');
 const Game = require('./game');
 const Player = require('./Player');
+const clone = require('cloneextend').clone;
 
 function NodeJSGameServer() 
 {
@@ -19,7 +20,9 @@ function NodeJSGameServer()
 		}
 	];
 
-	this.playersCount = lobby.playersCount;
+	this.getPlayersCount = function(){ 
+		return lobby.playersCount
+	};
 
 	this.createEvent = function (name, callback)
 	{
@@ -31,18 +34,35 @@ function NodeJSGameServer()
 		});
 	};
 
-	this.defineGame = function (callback)
+	this.defineGame = function (name, callback)
 	{
-		let game = new Game();
+		let game = clone(Game.prototype);
 		callback(game);
-		lobby.gameTypes.push(game);
+		lobby.gameTypes[name] = game;
 
 		return game;
 	};
 
 	this.getGameByPlayer = function(playerId)
 	{
-		return lobby.getGameByPlayer(playerId);
+		const player = lobby.players[playerId];
+
+		return lobby.games[player.activeGameId];
+	};
+
+	this.getGame = function(gameId)
+	{
+		return lobby.games[gameId];
+	};
+
+	this.getGames = function()
+	{
+		return lobby.games;
+	};
+
+	this.getGamesCount = function()
+	{
+		return lobby.gamesCount;
 	};
 
 	this.getPlayer = function(playerId)
@@ -116,25 +136,37 @@ function NodeJSGameServer()
 		socket.emit('loggedIn', player);
 	}
 
-	this.createGame = function(socket, data, callback)
+	this.createGame = function(socket, gameType, callback)
 	{
-		let game = lobby.createGame(socket, data);
-		let player = lobby.players[socket.id];
+		let game = lobby.newGame(gameType);
+		let player = lobby.players[socket.posId];
 
-		game.addPlayer(player);
+		game.addPlayer(socket.posId);
+		player.activeGameId = game.id;
 
 		callback(game);
-	}
+	};
 
-	this.joinGame = function(socket, callback)
+	this.joinGame = function(socket, data, callback)
 	{
-		let game = lobby.getGame(data.id);
+		let game = lobby.getGame(data);
 		lobby.joinGame(socket, game);
 
 		callback(game);
-	}
+	};
 
-	this.availableUserGames = lobby.availableUserGames;
+	this.removeGame = function(socket, gameId, callback)
+	{
+		const player = this.getPlayer(socket.posId);
+
+		if(player.activeGameId != gameId)
+			return;
+
+		const game = lobby.deleteGame(gameId);
+		player.activeGameId = null;
+		
+		callback(game);
+	};
 
 	let onPlayerDisconnectedCallback;
 

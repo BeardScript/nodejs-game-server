@@ -7,23 +7,27 @@ ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
 	character.someCharacterProperty = "propertyValue";
 });
 
-ngs.defineGame(function(game){
-	game.myCustomFunction = function(){
-		return true;
-	};
+ngs.defineGame("myGame", function(game){
+	game.test = "test";
 });
 
 ngs.createEvent("createGame", function(socket, data){
-	ngs.createGame(socket, data, function(game){
-		
+	const gameType = data;
+	ngs.createGame(socket, gameType, function(game){
+		socket.emit('gameCreated', game);
+	});
+});
+
+ngs.createEvent("removeGame", function(socket, data){
+	const gameId = data;
+	ngs.removeGame(socket, gameId, function(gameId){
+		socket.emit('gameRemoved', gameId);
 	});
 });
 
 ngs.createEvent("joinGame", function(socket, data){
-	const player = ngs.getPlayer(socket.id);
-
 	ngs.joinGame(function(game){
-
+		socket.emit('joinedGame', game);
 	});
 });
 

@@ -9,6 +9,7 @@
   "author": "BeardScript",
   "license": "UNLICENSED",
   "dependencies": {
+    "cloneextend": "0.0.3",
     "express": "^4.15.4",
     "socket.io": "^2.0.3"
   },

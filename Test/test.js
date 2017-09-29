@@ -39,7 +39,8 @@ describe('Server', function () {
   	});
 
   	it('should have only one player', function(done){
-		ngs.playersCount.should.equal(1);
+  		console.log(ngs.getPlayersCount());
+		ngs.getPlayersCount().should.equal(1);
 		done();
   	});
 
@@ -57,7 +58,7 @@ describe('Server', function () {
 	clientRef = {};
 
   	it('should have no players', function(done){
-		ngs.playersCount.should.equal(0);
+		ngs.getPlayersCount().should.equal(0);
 		done();
   	});
 
@@ -70,25 +71,45 @@ describe('Server', function () {
 
 		client.on('loggedIn', function(data){
 			ngs.getPlayers()[0].should.deep.equal(data);
+			client.disconnect();
 			done();
 		});
   	});
 
-  // 	it('should create user defined game', function(done){
-		// done();
-  // 	});
+  	let gameRef = {};
 
-  // 	it('should have only one game', function(done){
-		// done();
-  // 	});
+  	it('should create user defined game', function(done){
+		clientRef = io.connect(socketUrl, options);
+		
+		clientRef.on('connected', function(){
+			clientRef.emit('login');
+		});
 
-  // 	it('should delete user defined game if allowed', function(done){
-		// done();
-  // 	});
+		clientRef.on('loggedIn', function(data){
+			clientRef.emit('createGame', 'myGame');
+		});
 
-  // 	it('should have no games', function(done){
-		// done();
-  // 	});
+		clientRef.on('gameCreated', function(game){
+			game.should.have.property("test", "test");
+			gameRef = game;
+			done();
+		});
+  	});
+
+  	it('should add game to the games list', function(done){
+  		expect(ngs.getGames()[gameRef.id].id).to.equal(gameRef.id);
+		done();
+  	});
+
+  	it('should let player delete game if allowed', function(done){
+  		clientRef.emit('removeGame', 0);
+
+  		clientRef.on('gameRemoved', function(gameId){
+  			const game = ngs.getGame(gameId);
+  			expect(game).to.equal(undefined);
+			done();
+  		});
+  	});
 
   // 	it('should let player join game if allowed', function(done){
 		// done();
