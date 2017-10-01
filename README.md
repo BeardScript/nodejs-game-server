@@ -22,12 +22,23 @@ ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
     character.someCharacterProperty = "propertyValue";
 });
 
+// Set the maximum amount of players allowed into the server.
+ngs.setMaxPlayers(400);
+
+// Set the maximum amount of games allowed to be created.
+ngs.setMaxGames(400);
+
+// Set the maximum amount of games allowed to be running at the same time.
+ngs.setMaxRunningGames(200);
+
 // Defining your game
 ngs.defineGame(function(game){
     // Define your custom game Object. This object will inherit from the 'Game' object so you can access it's properties, although, overriding them could cause the system to break.
     function MyGame(){
         // this.property will be seen by the client
         this.test = "test";
+        // Set the maximum amount of players allowed into this game. If ommited delault will be set to 2
+        this.maxPlayers = 2;
     }
     //this method won't be seen by the client
     MyGame.prototype.testMethod = function(){};
@@ -43,23 +54,40 @@ ngs.createEvent("eventName", function(socket, data){
 
 // Letting players create games
 ngs.createEvent("createGame", function(socket, data){
-    ngs.onCreateGame(socket, gameType, function(game){
+    // Create the options object to pass on to our method
+    const options = {
+        socket: socket,
+        game: data.game,
+        origin: "user", // or matchmaking if it were the case
+        password: data.pass // Omit for no password
+    };
+    ngs.createGame(options, function(game){
         // Do something when a game is created.
         // Tell the client that the game was created
         socket.emit('gameCreated', game);
         // Tell all players in the room, 'lobby' that this game was created
-        socket.broadcast.to('lobby').emit('gameCreated', game);
+        socket.broadcast.to('lobby').emit('gameAdded', {id:game.id, players:game.players});
     });
 });
 
 // Letting players join created games
 ngs.createEvent("joinGame", function(socket, data){
-    const player = ngs.getPlayer(socket); // Retrieve the player
-    //if player can join this game, then...
-    ngs.onJoinGame(socket, gameId, function(game){
+    // Retrieve the Game
+    const game = ngs.getUserGame(data.id);
+    // Make sure the game exists
+    if(game == undefined)
+        return;
+    // Make sure the password matches
+    if(data.pass !== game.password)
+        return;
+
+    // We let the player join
+    ngs.joinGame(socket, gameId, function(game){
         // Do something when a player joins a game.
         // Tell the client it successfully joined the game
         socket.emit('joinedGame', game);
+        // Retrieve the player
+        const player = ngs.getPlayer(socket);
         // Tell all clients in the game room that this player joined
         socket.broadcast.to(game.id).emit('joinedGame', player);
     });
@@ -85,9 +113,9 @@ ngs.createEvent("rankedMatchMaking", function(socket, data){
     // Some matchmaking logic here
 
     // if there are no available games for this player
-    ngs.onCreateGame(function(game){});
+    ngs.createGame(function(game){});
     // else
-    ngs.onJoinGame(function(game){});
+    ngs.joinGame(function(game){});
 });
 
 ngs.onLogin(function(socket, data){
