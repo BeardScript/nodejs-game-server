@@ -2,7 +2,7 @@
 A Node JS game server framekork, created on top of socket.io.
 
 ### WARNING!!
-Be aware, this is still in a very early stage of development and not yet functional.
+Be aware, this is still in a very early stage of development and not yet stable enough to be used on production.
 
 ## introduction
 This module is being developed with the intention of providing out-of-the-box functionality for game servers. Good part of it was already being developed locally so mostly this project is about putting already-created functionality together, as an API.
