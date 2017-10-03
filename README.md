@@ -137,7 +137,7 @@ ngs.onPlayerDisconnected(function(socket, player){
 ngs.init(function beforeInit(){
     // This is called right before the server starts.
 
-    ngsChat.init(); // Initialize the plugin
+    ngsChat.init(ngs); // Initialize the plugin
 
     // All plugins that contain events should be loaded before the server is initialized.
     // You can either make sure that ngs.init() is called after all events are defined 
