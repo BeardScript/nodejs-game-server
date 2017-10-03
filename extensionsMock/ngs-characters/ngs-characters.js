@@ -17,12 +17,12 @@ Exports.createCharacter = function(id, name, owner)
 	character.owner = owner;
 };
 
-Expots.defineCharacter = function(name, callback)
+Exports.defineCharacter = function(name, callback)
 {
 	let character = new Character();
+	character.name = name;
+	
 	character = callback(character);
-
-	characters.name = character;
 };
 
 module.exports = Exports;

@@ -1,6 +1,6 @@
 {
   "name": "game-server",
-  "version": "1.0.0",
+  "version": "alpha 1.0.0",
   "description": "Node JS multiplayer game server",
   "main": "nodejs-game-server.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "author": "BeardScript",
   "license": "UNLICENSED",
   "dependencies": {
+    "cloneextend": "0.0.3",
     "express": "^4.15.4",
     "socket.io": "^2.0.3"
   },
