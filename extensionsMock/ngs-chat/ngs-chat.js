@@ -1,20 +1,22 @@
-function NGSChat (ngs) 
+function NGSChat () 
 {
-	this.subcribe = (socket, room) =>{
-		socket.join(room);
-	};
+    this.subcribe = (socket, room) =>{
+        socket.join(room);
+    };
 
-	this.unsubscribe = (socket, room) =>{
-		socket.leave(room);
-	};
+    this.unsubscribe = (socket, room) =>{
+        socket.leave(room);
+    };
 
-	ngs.createEvent("message", function(socket, data){
-		socket.broadcast.to(data.room).emit('message', data.message);
-	});
+    this.init = (ngs) =>{
+        ngs.createEvent("message", function(socket, data){
+            socket.broadcast.to(data.room).emit('message', data.message);
+        });
 
-	ngs.createEvent("pvtmessage", function(socket, data){
-		socket.to(data.id).emit('pvtmessage', data.message);
-	});
+        ngs.createEvent("pvtmessage", function(socket, data){
+            socket.to(data.id).emit('pvtmessage', data.message);
+        });
+    }
 }
 
-module.exports = NGSChat;
+module.exports = new NGSChat();

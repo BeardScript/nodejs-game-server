@@ -99,7 +99,7 @@ describe('Server', function () {
         done();
     });
 
-     it('should add player to the game it created', function(done){
+     it('should add player to the game created', function(done){
         gameRef.players[0].should.equal(0);
         done();
      });

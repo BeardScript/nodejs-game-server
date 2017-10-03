@@ -61,12 +61,12 @@ function NodeJSGameServer() {
     this.getUserGame = function(gameId)
     {
         return lobby.userGames[gameId];
-    }
+    };
 
     this.getUserGames = function()
     {
         return lobby.userGames;
-    }
+    };
 
     this.getGamesCount = function(){
         return lobby.gamesCount;
@@ -178,6 +178,7 @@ function NodeJSGameServer() {
 
         let player = this.getPlayer(socket);
         game.addPlayer(socket);
+        player.activeGameId = game.id;
 
         callback();
     };

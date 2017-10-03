@@ -14,7 +14,6 @@ In order to provide modularity and flexibility, any "extra" functionality will b
 ```javascript
 const ngs = require('nodejs-game-server');
 const NgsChat = require('ngs-chat');    // This is an extension. It ads a chat system to the server.
-const ngsChat = new NgsChat(ngs);
 const ngsCharacters = require('ngs-characters');    // This extension provides an interface to create Game Characters.
 
 // Using the characters extension to define your characters
@@ -134,5 +133,20 @@ ngs.onPlayerDisconnected(function(socket, player){
     // This is very usefull to apply your rules, when a player disconnects in the middle of a game.
 });
 
-ngs.init(); // Initialize the Server.
+// Initialize the Server.
+ngs.init(function beforeInit(){
+    // This is called right before the server starts.
+
+    ngsChat.init(); // Initialize the plugin
+
+    // All plugins that contain events should be loaded before the server is initialized.
+    // You can either make sure that ngs.init() is called after all events are defined 
+    // or you can define them here directly. It could be considered a good practice to
+    // define everything in here, either directly or through require(), to make sure
+    // there are no issues regarding the order of execution.
+},
+function afterInit(){
+    // This is called after the server has started and all events have been loaded.
+    // You can simply omit it if it's not useful to you.
+});
 ```

@@ -1,6 +1,5 @@
 const ngs = require('../nodejs-game-server');
-const NgsChat = require('../extensionsMock/ngs-chat/ngs-chat');
-const ngsChat = new NgsChat(ngs);
+const ngsChat = require('../extensionsMock/ngs-chat/ngs-chat');
 const ngsCharacters = require('../extensionsMock/ngs-characters/ngs-characters');
 
 ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
@@ -10,7 +9,7 @@ ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
 ngs.defineGame("myGame", function(){
     function MyGame(){
         this.test = "test";
-        // this.maxPlayers = 2;
+        this.maxPlayers = 2;
     }
 
     MyGame.prototype.testMethod = function(){};
@@ -62,6 +61,20 @@ ngs.onPlayerDisconnected(function(socket, player){
     console.log('player disconnected');
 });
 
-ngs.init();
+ngs.init(function beforeInit(){
+    // This is called right before the server starts.
+
+    ngsChat.init(); // Initialize the plugin
+
+    // All plugins that contain events should be loaded before the server is initialized.
+    // You can either make sure that ngs.init() is called after all events are defined 
+    // or you can define them here directly. It could be considered a good practice to
+    // define everything in here, either directly or through require(), to make sure
+    // there are no issues regarding the order of execution.
+},
+function afterInit(){
+    // This is called after the server has started and all events have been loaded.
+    // You can simply omit it if it's not useful to you.
+});
 
 module.exports.ngs = ngs;
