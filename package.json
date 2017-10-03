@@ -1,6 +1,6 @@
 {
   "name": "game-server",
-  "version": "1.0.0",
+  "version": "alpha 1.0.0",
   "description": "Node JS multiplayer game server",
   "main": "nodejs-game-server.js",
   "scripts": {
