@@ -6,6 +6,15 @@ ngsCharacters.defineCharacter("uniqueCharacterName", function(character){
     character.someCharacterProperty = "propertyValue";
 });
 
+// Set the maximum amount of players allowed into the server.
+ngs.setMaxPlayers(400);
+
+// Set the maximum amount of games allowed to be created.
+ngs.setMaxGames(400);
+
+// Set the maximum amount of games allowed to be running at the same time.
+ngs.setMaxRunningGames(200);
+
 ngs.defineGame("myGame", function(){
     function MyGame(){
         this.test = "test";
@@ -14,7 +23,29 @@ ngs.defineGame("myGame", function(){
 
     MyGame.prototype.testMethod = function(){};
 
-    return MyGame
+    MyGame.prototype.spawnCharacters = function(){};
+
+    MyGame.prototype.startGame = function(socket){
+        this.spawnCharacters();
+        // Do other stuff when a game starts.
+        socket.emit('gameStarted', this);
+        socket.broadcast.to(this.room).emit('gameStarted', this);
+    };
+
+    MyGame.prototype.onStartGame = function(socket){
+        // Some logic to start a game here
+
+        let gameStatus = ngs.startGame(this);
+
+        if(gameStatus === "started")
+            this.startGame(socket);
+        else if(gameStatus === "gameRoomsFull")
+            socket.emit('gameRoomsFull');
+        else if(gameStatus === "gameAlreadyRunning")
+            socket.emit('gameAlreadyRunning');
+    };
+
+    return MyGame;
 });
 
 ngs.createEvent("createGame", function(socket, data){
@@ -26,8 +57,18 @@ ngs.createEvent("createGame", function(socket, data){
     };
     ngs.createGame(options, function(game){
         socket.emit('gameCreated', game);
+        socket.join(game.room);
         socket.broadcast.to('lobby').emit('gameAdded', {id:game.id, players:game.players});
     });
+});
+
+ngs.createEvent("startGame", function(socket, gameId){
+    let game = ngs.getUserGame(gameId);
+
+    if(game.isOwner(socket))
+        game.onStartGame(socket);
+    else
+        socket.emit('forbiddenAction');
 });
 
 ngs.createEvent("removeGame", function(socket, data){

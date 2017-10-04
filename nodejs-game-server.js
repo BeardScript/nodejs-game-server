@@ -3,6 +3,8 @@ const Game = require('./game');
 const Player = require('./Player');
 const clone = require('cloneextend').clone;
 
+const defaultMaxPlayers = 2;
+
 function NodeJSGameServer() {
     let events = [
     {
@@ -31,14 +33,14 @@ function NodeJSGameServer() {
 
     this.defineGame = function (name, callback)
     {
-        let CustomGame = callback();
+        const CustomGame = callback();
         Object.assign(CustomGame.prototype, Game.prototype);
 
         let game = new CustomGame();
         Object.assign(game, new Game());
 
         if(game.maxPlayers == undefined)
-            game.maxPlayers = 2;
+            game.maxPlayers = defaultMaxPlayers;
 
         lobby.gameTypes[name] = game;
     };
@@ -70,6 +72,10 @@ function NodeJSGameServer() {
 
     this.getGamesCount = function(){
         return lobby.gamesCount;
+    };
+
+    this.getRunningGamesCount = function(){
+        return lobby.runningGamesCount;
     };
 
     this.getPlayer = function(socket){
@@ -181,6 +187,20 @@ function NodeJSGameServer() {
         player.activeGameId = game.id;
 
         callback();
+    };
+
+    this.startGame = function(game)
+    {
+        if(game.isRunning)
+            return "gameAlreadyRunning";
+
+        if(lobby.runningGamesCount >= lobby.maxRunningGames)
+            return "gameRoomsFull";
+
+        game.isRunning = true;
+        lobby.runningGamesCount++;
+
+        return "started";
     };
 
     this.removeGame = function(socket, gameId, callback)

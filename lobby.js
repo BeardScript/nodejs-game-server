@@ -68,6 +68,8 @@ function Lobby()
             else
                 return undefined;
 
+            game.room = "m" + game.id;
+
             this.games[game.id] = game;
             this.matchmakingGamesCount++;
         }
@@ -80,7 +82,10 @@ function Lobby()
             else
                 return undefined;
 
-            this.userGames[game.id] = game
+            game.room = "u" + game.id;
+            game.owner = options.socket.posId;
+
+            this.userGames[game.id] = game;
             this.userGamesCount++;
         }
 

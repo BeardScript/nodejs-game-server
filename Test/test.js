@@ -99,19 +99,19 @@ describe('Server', function () {
         done();
     });
 
-     it('should add player to the game created', function(done){
+    it('should add player to the game created', function(done){
         gameRef.players[0].should.equal(0);
         done();
-     });
+    });
 
-     it('should have only one player in the created game', function(done){
+    it('should have only one player in the created game', function(done){
         gameRef.playersCount.should.equal(1);
         done();
-     });
+    });
 
-     it('should let player join game if allowed', function(done){
+    it('should let player join game if allowed', function(done){
         let client = io.connect(socketUrl, options);
-        
+
         client.on('connected', function(){
             client.emit('login');
         });
@@ -124,7 +124,20 @@ describe('Server', function () {
             game.players[1].should.equal(1);
             done();
         });
-     });
+    });
+
+    it('should let player start game if allowed', function(done){
+        clientRef.emit('startGame', gameRef.id);
+        clientRef.on('gameStarted', function(game){
+            game.isRunning.should.equal(true);
+            done();
+        });
+    });
+
+    it('should have only one running game', function(done){
+        ngs.getRunningGamesCount().should.equal(1);
+        done();
+    });
 
     it('should let player delete game if allowed', function(done){
         clientRef.emit('removeGame', 0);

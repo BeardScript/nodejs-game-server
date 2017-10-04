@@ -1,8 +1,10 @@
 function Game(){
     this.id = undefined;
+    this.room = undefined;
     this.players = [];
     this.playersCount = 0;
     this.playersEmptyPositions = [];
+    this.isRunning = false;
 }
 
 Game.prototype.addPlayer = function(socket)
@@ -16,6 +18,11 @@ Game.prototype.addPlayer = function(socket)
 
     this.playersCount++;
     this.players[socket.gamePos] = socket.posId;
+};
+
+Game.prototype.isOwner = function(socket)
+{
+    return this.owner === socket.posId;
 };
 
 module.exports = Game;

@@ -1,4 +1,4 @@
-function NGSChat () 
+function NGSChat ()
 {
     this.subcribe = (socket, room) =>{
         socket.join(room);
