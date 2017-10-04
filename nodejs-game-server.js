@@ -203,14 +203,14 @@ function NodeJSGameServer() {
         return "started";
     };
 
-    this.removeGame = function(socket, gameId, callback)
+    this.removeGame = function(socket, gameRoom, callback)
     {
         const player = this.getPlayer(socket);
 
-        if(player.activeGameId != gameId)
+        if(player.activeGameId != gameRoom)
             return;
 
-        const game = lobby.deleteGame(gameId);
+        const game = lobby.deleteGame(gameRoom);
         player.activeGameId = null;
         
         callback(game);

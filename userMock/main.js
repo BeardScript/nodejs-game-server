@@ -100,6 +100,16 @@ ngs.onLogin(function(socket, data){
 
 ngs.onPlayerDisconnected(function(socket, player){
     console.log('player disconnected');
+    
+    if(!player.activeGameId)
+        return;
+
+    const game = lobby.userGames[player.activeGameId];
+
+    if(!game)
+        game = lobby.games[player.activeGameId];
+
+    game.removePlayer(socket);
 });
 
 ngs.init(function beforeInit(){

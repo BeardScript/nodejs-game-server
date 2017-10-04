@@ -20,9 +20,28 @@ Game.prototype.addPlayer = function(socket)
     this.players[socket.gamePos] = socket.posId;
 };
 
+Game.prototype.removePlayer = function(socket)
+{   
+    if(this.isOwner(this.players[socket.gamePos]))
+        changeOwner(this);
+
+    this.players[socket.gamePos] = undefined;
+    this.playersEmptyPositions.push(socket.gamePos);
+    this.playersCount--;
+};
+
 Game.prototype.isOwner = function(socket)
 {
     return this.owner === socket.posId;
 };
 
 module.exports = Game;
+
+function changeOwner(game)
+{
+    for(let i = 0; i < game.players.length; i++)
+    {
+        if(game.players[i] != undefined)
+            game.owner = game.players[i];
+    }
+}

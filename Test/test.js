@@ -109,18 +109,20 @@ describe('Server', function () {
         done();
     });
 
+    let clientRef2 = {};
+
     it('should let player join game if allowed', function(done){
-        let client = io.connect(socketUrl, options);
+        clientRef2 = io.connect(socketUrl, options);
 
-        client.on('connected', function(){
-            client.emit('login');
+        clientRef2.on('connected', function(){
+            clientRef2.emit('login');
         });
 
-        client.on('loggedIn', function(data){
-            client.emit('joinGame', {id: gameRef.id, pass:"123"});
+        clientRef2.on('loggedIn', function(data){
+            clientRef2.emit('joinGame', {id: gameRef.id, pass:"123"});
         });
 
-        client.on('joinedGame', function(game){
+        clientRef2.on('joinedGame', function(game){
             game.players[1].should.equal(1);
             done();
         });
@@ -139,16 +141,22 @@ describe('Server', function () {
         done();
     });
 
-    it('should let player delete game if allowed', function(done){
-        clientRef.emit('removeGame', 0);
+    it('should change game owner if current one leaves', function(done){
+        clientRef.disconnect();
+        done();
+    });
 
-        clientRef.on('gameRemoved', function(gameId){
+    clientRef = {};
+
+    it('should let player delete game if allowed', function(done){
+        clientRef2.emit('removeGame', 0);
+
+        clientRef2.on('gameRemoved', function(gameId){
             const game = ngs.getUserGame(gameId);
             expect(game).to.equal(undefined);
             done();
         });
     });
 
-gameRef = {};
-
+    gameRef = {};
 });
